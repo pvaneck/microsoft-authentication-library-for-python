@@ -1449,9 +1449,11 @@ The reserved list: {}""".format(list(scope_set), list(reserved_scope)))
                     "expires_in": int(expires_in),  # OAuth2 specs defines it as int
                     self._TOKEN_SOURCE: self._TOKEN_SOURCE_CACHE,
                     }
-                if "refresh_on" in entry and int(entry["refresh_on"]) < now:  # aging
-                    refresh_reason = msal.telemetry.AT_AGING
-                    break  # With a fallback in hand, we break here to go refresh
+                if "refresh_on" in entry:
+                    if int(entry["refresh_on"]) < now:  # aging
+                        refresh_reason = msal.telemetry.AT_AGING
+                        break  # With a fallback in hand, we break here to go refresh
+                    access_token_from_cache["refresh_on"] = int(entry["refresh_on"])
                 self._build_telemetry_context(-1).hit_an_access_token()
                 return access_token_from_cache  # It is still good as new
         else:
